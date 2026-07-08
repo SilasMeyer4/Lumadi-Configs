@@ -18,7 +18,7 @@ void AppSettings::Save()
 {
   const auto root = AppSettings::ToJson();
 
-  std::filesystem::path filePath(mPath);
+  const std::filesystem::path filePath(mPath);
   auto parentPath = filePath.parent_path();
 
   if (!parentPath.empty() && !std::filesystem::exists(parentPath))
@@ -60,14 +60,14 @@ void AppSettings::Load()
 
   mVersionString = root.value("version", "");
 
-  for (auto &category: mCategories)
+  for (const auto &category: mCategories)
   {
     if (!root.contains(category->GetName()))
       continue;
 
     auto &cat = root[category->GetName()];
 
-    for (auto &option: category->GetSettings())
+    for (const auto &option: category->GetSettings())
     {
       if (!cat.contains(option->GetName()))
       {
@@ -89,13 +89,30 @@ void AppSettings::SetPath(std::string path)
   mPath = std::move(path);
 }
 
+AppConfigCategory* AppSettings::GetCategory(std::string &name)
+{
+  const auto it = std::ranges::find_if(mCategories, [&](const auto &category)
+  {
+    return category->GetName() == name;
+  });
+
+  if (it == mCategories.end())
+  {
+    return nullptr;
+  }
+
+  IAppConfigCategory* rawInterfacePtr = it->get();
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
+  return static_cast<AppConfigCategory*>(rawInterfacePtr);
+}
+
 nlohmann::json AppSettings::ToJson() const
 {
   nlohmann::json root;
   root["version"] = mVersionString;
   for (auto &category: mCategories)
   {
-    for (auto &option: category->GetSettings())
+    for (const auto &option: category->GetSettings())
     {
       root[category->GetName()][option->GetName()] = option->GetJson();
     }

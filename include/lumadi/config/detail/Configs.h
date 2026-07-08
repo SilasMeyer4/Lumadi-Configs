@@ -109,6 +109,25 @@ class AppConfigCategory : public IAppConfigCategory
     return *ptr;
   }
 
+  template<typename T>
+  Setting<T>& GetSetting(std::string name)
+  {
+    auto it = std::find_if(mSettings.begin(), mSettings.end(), [&](const auto &setting)
+    {
+      return setting->GetName() == name;
+    });
+
+    if (it == mSettings.end())
+    {
+      return nullptr;
+    }
+
+    ISetting* rawInterfacePtr = it->get();
+
+    auto* concretePtr = static_cast<Setting<T>*>(rawInterfacePtr);
+    return *concretePtr;
+  }
+
   std::vector<std::unique_ptr<ISetting>>& GetSettings() override
   {
     return mSettings;
@@ -118,6 +137,7 @@ class AppConfigCategory : public IAppConfigCategory
   {
     return mName;
   }
+
 
   private:
   std::string mName;
@@ -133,6 +153,7 @@ public:
   void Load();
   [[nodiscard]] std::string GetJson() const;
   void SetPath(std::string path);
+  AppConfigCategory* GetCategory(std::string& name);
 
   template<typename T = AppConfigCategory, typename... Args>
   T& CreateCategory(Args&&... args)
