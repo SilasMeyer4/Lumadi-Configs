@@ -102,7 +102,7 @@ class AppConfigCategory : public IAppConfigCategory
 
 
   template<typename T>
-  Setting<T>& AddSetting(std::string name, T defaultValue)
+  Setting<T>& CreateSetting(std::string name, T defaultValue)
   {
     auto option = std::make_unique<Setting<T>>(std::move(name), defaultValue, defaultValue);
     auto* ptr = option.get();
@@ -137,8 +137,8 @@ public:
   template<typename T = AppConfigCategory, typename... Args>
   T& CreateCategory(Args&&... args)
   {
-    static_assert(std::is_base_of_v<IAppConfigCategory, T>,
-                  "Needs to inherit from IAppConfigCategory!");
+    static_assert(std::is_base_of_v<AppConfigCategory, T>,
+                  "Needs to inherit from AppConfigCategory!");
 
     auto category = std::make_unique<T>(std::forward<Args>(args)...);
     auto* ptr = category.get();
@@ -149,7 +149,7 @@ public:
 private:
   void Load();
   [[nodiscard]] nlohmann::json ToJson() const;
-  std::vector<std::unique_ptr<AppConfigCategory>> mCategories;
+  std::vector<std::unique_ptr<IAppConfigCategory>> mCategories;
   std::string mPath;
   std::string mVersionString;
 };
