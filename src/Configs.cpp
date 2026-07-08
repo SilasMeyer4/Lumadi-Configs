@@ -18,17 +18,45 @@ void AppSettings::Save()
 {
   const auto root = AppSettings::ToJson();
 
+  std::filesystem::path filePath(mPath);
+  auto parentPath = filePath.parent_path();
+
+  if (!parentPath.empty() && !std::filesystem::exists(parentPath))
+  {
+    std::filesystem::create_directories(parentPath);
+  }
+
   std::ofstream file(mPath);
-  file << root.dump(4);
-  file.close();
+  if (file.fail())
+  {
+    file << root.dump(4);
+    file.close();
+  }
+
 }
 
 void AppSettings::Load()
 {
   std::ifstream file(mPath);
 
+  if (!file.is_open())
+  {
+    Save();
+    return;
+  }
+
   nlohmann::json root;
-  file >> root;
+  try
+  {
+    file >> root;
+  } catch (const nlohmann::json::parse_error &e)
+  {
+    file.close();
+    return;
+  }
+
+  file.close();
+
 
   mVersionString = root.value("version", "");
 
@@ -49,7 +77,6 @@ void AppSettings::Load()
       option->SetValue(cat[option->GetName()]);
     }
   }
-  file.close();
 }
 
 std::string AppSettings::GetJson() const
