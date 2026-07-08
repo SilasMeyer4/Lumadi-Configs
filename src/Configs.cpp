@@ -11,7 +11,6 @@
 
 AppSettings::AppSettings(std::string path, std::string versionString) : mPath(std::move(path)), mVersionString(std::move(versionString))
 {
-  Load();
 }
 
 void AppSettings::Save()

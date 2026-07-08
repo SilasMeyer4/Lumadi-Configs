@@ -17,7 +17,6 @@ class ISetting
 public:
   virtual ~ISetting() = default;
   [[nodiscard]] virtual std::string_view GetName() const = 0;
-  virtual void SetFromJson(const nlohmann::json &value) = 0;
   [[nodiscard]] virtual nlohmann::json GetJson() const = 0;
   virtual void SetValue(const nlohmann::json &value) = 0;
   [[nodiscard]] virtual SettingType GetType() const = 0;
@@ -49,7 +48,7 @@ public:
     return mValue;
   }
 
-  void SetValue(T value) override
+  void SetValue(T value)
   {
     mValue = std::move(value);
 
@@ -131,6 +130,7 @@ class AppSettings
 public:
   AppSettings(std::string path, std::string versionString = "");
   void Save();
+  void Load();
   [[nodiscard]] std::string GetJson() const;
   void SetPath(std::string path);
 
@@ -147,7 +147,6 @@ public:
   }
 
 private:
-  void Load();
   [[nodiscard]] nlohmann::json ToJson() const;
   std::vector<std::unique_ptr<IAppConfigCategory>> mCategories;
   std::string mPath;
