@@ -110,7 +110,7 @@ class AppConfigCategory : public IAppConfigCategory
   }
 
   template<typename T>
-  Setting<T>& GetSetting(std::string name)
+  Setting<T>& GetSetting(const std::string& name)
   {
     auto it = std::find_if(mSettings.begin(), mSettings.end(), [&](const auto &setting)
     {
@@ -153,7 +153,7 @@ public:
   void Load();
   [[nodiscard]] std::string GetJson() const;
   void SetPath(std::string path);
-  AppConfigCategory* GetCategory(std::string& name);
+  AppConfigCategory* GetCategory(const std::string& name);
 
   template<typename T = AppConfigCategory, typename... Args>
   T& CreateCategory(Args&&... args)

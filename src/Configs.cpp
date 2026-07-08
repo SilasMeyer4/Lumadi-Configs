@@ -89,7 +89,7 @@ void AppSettings::SetPath(std::string path)
   mPath = std::move(path);
 }
 
-AppConfigCategory* AppSettings::GetCategory(std::string &name)
+AppConfigCategory* AppSettings::GetCategory(const std::string &name)
 {
   const auto it = std::ranges::find_if(mCategories, [&](const auto &category)
   {
