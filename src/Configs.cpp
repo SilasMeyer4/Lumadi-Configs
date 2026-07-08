@@ -9,7 +9,8 @@
 
 #include "nlohmann/json.hpp"
 
-AppSettings::AppSettings(std::string path, std::string versionString) : mPath(std::move(path)), mVersionString(std::move(versionString))
+AppSettings::AppSettings(std::string path, std::string versionString) : mPath(std::move(path)),
+                                                                        mVersionString(std::move(versionString))
 {
 }
 
@@ -29,21 +30,23 @@ void AppSettings::Load()
   nlohmann::json root;
   file >> root;
 
-   mVersionString = root.value("version", "");
+  mVersionString = root.value("version", "");
 
-  for (auto& category : mCategories)
+  for (auto &category: mCategories)
   {
     if (!root.contains(category->GetName()))
       continue;
 
-    auto& cat = root[category->GetName()];
+    auto &cat = root[category->GetName()];
 
-    for (auto& option : category->GetSettings())
+    for (auto &option: category->GetSettings())
     {
       if (!cat.contains(option->GetName()))
+      {
         continue;
+      }
 
-      option->SetFromJson(cat[option->GetName()]);
+      option->SetValue(cat[option->GetName()]);
     }
   }
   file.close();
@@ -63,9 +66,9 @@ nlohmann::json AppSettings::ToJson() const
 {
   nlohmann::json root;
   root["version"] = mVersionString;
-  for (auto& category : mCategories)
+  for (auto &category: mCategories)
   {
-    for (auto& option : category->GetSettings())
+    for (auto &option: category->GetSettings())
     {
       root[category->GetName()][option->GetName()] = option->GetJson();
     }
