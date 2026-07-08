@@ -32,7 +32,7 @@ void AppSettings::Load()
 
    mVersionString = root.value("version", "");
 
-  for (auto& category : mSettings)
+  for (auto& category : mCategories)
   {
     if (!root.contains(category->GetName()))
       continue;
@@ -64,7 +64,7 @@ nlohmann::json AppSettings::ToJson() const
 {
   nlohmann::json root;
   root["version"] = mVersionString;
-  for (auto& category : mSettings)
+  for (auto& category : mCategories)
   {
     for (auto& option : category->GetSettings())
     {

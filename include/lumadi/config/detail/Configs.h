@@ -134,10 +134,22 @@ public:
   [[nodiscard]] std::string GetJson() const;
   void SetPath(std::string path);
 
+  template<typename T = AppConfigCategory, typename... Args>
+  T& CreateCategory(Args&&... args)
+  {
+    static_assert(std::is_base_of_v<IAppConfigCategory, T>,
+                  "Needs to inherit from IAppConfigCategory!");
+
+    auto category = std::make_unique<T>(std::forward<Args>(args)...);
+    auto* ptr = category.get();
+    mCategories.push_back(std::move(category));
+    return *ptr;
+  }
+
 private:
   void Load();
   [[nodiscard]] nlohmann::json ToJson() const;
-  std::vector<std::unique_ptr<AppConfigCategory>> mSettings;
+  std::vector<std::unique_ptr<AppConfigCategory>> mCategories;
   std::string mPath;
   std::string mVersionString;
 };
