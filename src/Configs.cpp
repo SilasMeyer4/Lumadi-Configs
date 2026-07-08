@@ -27,7 +27,7 @@ void AppSettings::Save()
   }
 
   std::ofstream file(mPath);
-  if (file.fail())
+  if (file.is_open())
   {
     file << root.dump(4);
     file.close();
