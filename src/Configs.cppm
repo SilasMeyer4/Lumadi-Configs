@@ -22,8 +22,8 @@ class ISetting
 public:
   virtual ~ISetting() = default;
   [[nodiscard]] virtual std::string_view GetName() const = 0;
-  [[nodiscard]] virtual nlohmann::json GetJson() const = 0;
-  virtual void SetValue(const nlohmann::json &value) = 0;
+  [[nodiscard]] virtual std::string GetJson() const = 0;
+  virtual void SetValue(const std::string &jsonString) = 0;
   [[nodiscard]] virtual SettingType GetType() const = 0;
 };
 
@@ -43,14 +43,23 @@ public:
     return mName;
   }
 
-  void SetValue(const nlohmann::json &value) override
+  void SetValue(const std::string &jsonString) override
   {
-    SetValue(value.get<T>());
+    try
+    {
+      auto value = nlohmann::json::parse(jsonString);
+      SetValue(value.get<T>());
+    }
+    catch (...)
+    {
+      SetValue(mDefaultValue);
+    }
+
   }
 
-  [[nodiscard]] nlohmann::json GetJson() const override
+  [[nodiscard]] std::string GetJson() const override
   {
-    return mValue;
+    return nlohmann::json(mValue).dump();
   }
 
   void SetValue(T value)
@@ -253,7 +262,7 @@ void AppSettings::Load()
         continue;
       }
 
-      option->SetValue(cat[option->GetName()]);
+      option->SetValue(cat[option->GetName()].dump());
     }
   }
 }
@@ -293,7 +302,7 @@ nlohmann::json AppSettings::ToJson() const
   {
     for (const auto &option: category->GetSettings())
     {
-      root[category->GetName()][option->GetName()] = option->GetJson();
+      root[category->GetName()][option->GetName()] = nlohmann::json::parse(option->GetJson());
     }
   }
 
