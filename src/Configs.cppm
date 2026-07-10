@@ -16,7 +16,8 @@ export module Lumadi.Configs;
 
 import :SettingTypes;
 
-
+namespace Lumadi::Configs
+{
 class ISetting
 {
 public:
@@ -299,4 +300,6 @@ nlohmann::json AppSettings::ToJson() const
 
   return root;
 }
+}
+
 
