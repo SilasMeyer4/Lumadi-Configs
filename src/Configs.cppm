@@ -10,6 +10,7 @@ module;
 #include <memory>
 #include <fstream>
 #include <utility>
+#include <filesystem>
 #include "nlohmann/json.hpp"
 
 export module Lumadi.Configs;
@@ -91,19 +92,19 @@ private:
   Callback mCallback;
 };
 
-class IAppConfigCategory
+class IAppSettingCategory
 {
 public:
-  virtual ~IAppConfigCategory() = default;
+  virtual ~IAppSettingCategory() = default;
   virtual std::vector<std::unique_ptr<ISetting>> &GetSettings() = 0;
   [[nodiscard]] virtual std::string_view GetName() const = 0;
 };
 
-export class AppConfigCategory : public IAppConfigCategory
+export class AppSettingCategory : public IAppSettingCategory
 {
   public:
-  explicit AppConfigCategory(std::string name) : mName(std::move(name)){}
-  AppConfigCategory(std::string name, std::string description) : mName(std::move(name)), mDescription(std::move(description)){}
+  explicit AppSettingCategory(std::string name) : mName(std::move(name)){}
+  AppSettingCategory(std::string name, std::string description) : mName(std::move(name)), mDescription(std::move(description)){}
 
 
   template<typename T>
@@ -157,7 +158,7 @@ public:
   void Load();
   [[nodiscard]] std::string GetJson() const;
   void SetPath(std::string path);
-  AppConfigCategory* GetCategory(const std::string& name);
+  AppSettingCategory* GetCategory(const std::string& name);
   template<typename T>
   Setting<T>* GetSetting(const std::string& category, const std::string& name)
   {
@@ -169,11 +170,11 @@ public:
     return nullptr;
   }
 
-  template<typename T = AppConfigCategory, typename... Args>
+  template<typename T = AppSettingCategory, typename... Args>
   T& CreateCategory(Args&&... args)
   {
-    static_assert(std::is_base_of_v<AppConfigCategory, T>,
-                  "Needs to inherit from AppConfigCategory!");
+    static_assert(std::is_base_of_v<AppSettingCategory, T>,
+                  "Needs to inherit from AppSettingCategory!");
 
     auto category = std::make_unique<T>(std::forward<Args>(args)...);
     auto* ptr = category.get();
@@ -183,7 +184,7 @@ public:
 
 private:
   [[nodiscard]] nlohmann::json ToJson() const;
-  std::vector<std::unique_ptr<IAppConfigCategory>> mCategories;
+  std::vector<std::unique_ptr<IAppSettingCategory>> mCategories;
   std::string mPath;
   std::string mVersionString;
 };
@@ -269,7 +270,7 @@ void AppSettings::SetPath(std::string path)
   mPath = std::move(path);
 }
 
-AppConfigCategory* AppSettings::GetCategory(const std::string &name)
+AppSettingCategory* AppSettings::GetCategory(const std::string &name)
 {
   const auto it = std::ranges::find_if(mCategories, [&](const auto &category)
   {
@@ -281,9 +282,9 @@ AppConfigCategory* AppSettings::GetCategory(const std::string &name)
     return nullptr;
   }
 
-  IAppConfigCategory* rawInterfacePtr = it->get();
+  IAppSettingCategory* rawInterfacePtr = it->get();
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
-  return static_cast<AppConfigCategory*>(rawInterfacePtr);
+  return static_cast<AppSettingCategory*>(rawInterfacePtr);
 }
 
 nlohmann::json AppSettings::ToJson() const
