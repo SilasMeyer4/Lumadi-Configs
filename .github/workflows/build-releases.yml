@@ -51,30 +51,36 @@ jobs:
           brew install cmake ninja
 
       # --- BUILD ---
-      - name: Configure and Build
-        shell: ${{ matrix.os == 'windows-latest' && 'msys2 {0}' || 'bash' }}
+      - name: Configure and Build (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: msys2 {0}
+        run: |
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --target Lumadi_Configs
+
+      - name: Configure and Build (Linux/macOS)
+        if: matrix.os != 'windows-latest'
         run: |
           cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
           cmake --build build --target Lumadi_Configs
 
       # --- ARTIFACT PACKAGING ---
-      - name: Package Artifact
-        shell: ${{ matrix.os == 'windows-latest' && 'msys2 {0}' || 'bash' }}
+      - name: Package Artifact (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: msys2 {0}
         run: |
           mkdir -p package/include
-          
-          # Copy the static library (Linux/macOS: libLumadi_Configs.a, Windows: libLumadi_Configs.a)
           find build -name "libLumadi_Configs.a" -exec cp {} package/ \; 2>/dev/null || true
-          
-          # Copy module interface files (.ifc, .gcm, or .pcm)
           find build -name "*.ifc" -o -name "*.gcm" -o -name "*.pcm" -exec cp {} package/include/ \; 2>/dev/null || true
-          
-          # Create archive
-          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            tar -a -c -f ${{ matrix.artifact_name }} -C package .
-          else
-            tar -czvf ${{ matrix.artifact_name }} -C package .
-          fi
+          tar -a -c -f ${{ matrix.artifact_name }} -C package .
+
+      - name: Package Artifact (Linux/macOS)
+        if: matrix.os != 'windows-latest'
+        run: |
+          mkdir -p package/include
+          find build -name "libLumadi_Configs.a" -exec cp {} package/ \; 2>/dev/null || true
+          find build -name "*.ifc" -o -name "*.gcm" -o -name "*.pcm" -exec cp {} package/include/ \; 2>/dev/null || true
+          tar -czvf ${{ matrix.artifact_name }} -C package .
 
       # --- UPLOAD TO GITHUB RELEASE ---
       - name: Upload Binary to Release
