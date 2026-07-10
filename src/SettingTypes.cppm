@@ -2,13 +2,11 @@
 // Created by meyer on 10.07.2026.
 //
 
-module;
-
-#include <vector>
-#include <string>
-#include <cstdint>
-
 export module Lumadi.Configs:SettingTypes;
+
+import <vector>;
+import <string>;
+import <cstdint>;
 
 namespace Lumadi::Configs
 {

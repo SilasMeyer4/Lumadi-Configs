@@ -1,21 +1,18 @@
 //
 // Created by meyer on 10.07.2026.
 //
-
-module;
-
-#include <string>
-#include <vector>
-#include <functional>
-#include <memory>
-#include <fstream>
-#include <utility>
-#include <filesystem>
-#include "nlohmann/json.hpp"
-
 export module Lumadi.Configs;
 
-import :SettingTypes;
+export import :SettingTypes;
+
+import <string>;
+import <vector>;
+import <functional>;
+import <memory>;
+import <fstream>;
+import <utility>;
+import <filesystem>;
+import "nlohmann/json.hpp";
 
 namespace Lumadi::Configs
 {
