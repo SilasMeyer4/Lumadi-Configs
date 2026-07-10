@@ -9,12 +9,11 @@ module;
 #include <fstream>
 #include <utility>
 #include <filesystem>
+#include "nlohmann/json.hpp"
 
 export module Lumadi.Configs;
 
 export import :SettingTypes;
-
-import "nlohmann/json.hpp";
 
 namespace Lumadi::Configs
 {
