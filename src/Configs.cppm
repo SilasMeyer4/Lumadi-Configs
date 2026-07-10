@@ -28,7 +28,7 @@ public:
 };
 
 
-template <typename T>
+export template <typename T>
 class Setting : public ISetting
 {
 public:
@@ -80,7 +80,7 @@ public:
 
   [[nodiscard]] SettingType GetType() const override
   {
-    return SettingType::Undefined;
+    return SettingTypeTraits<T>::value;
   }
 
 private:
@@ -98,7 +98,7 @@ public:
   [[nodiscard]] virtual std::string_view GetName() const = 0;
 };
 
-class AppConfigCategory : public IAppConfigCategory
+export class AppConfigCategory : public IAppConfigCategory
 {
   public:
   explicit AppConfigCategory(std::string name) : mName(std::move(name)){}
@@ -148,7 +148,7 @@ class AppConfigCategory : public IAppConfigCategory
   std::vector<std::unique_ptr<ISetting>> mSettings;
 };
 
-class AppSettings
+export class AppSettings
 {
 public:
   AppSettings(std::string path, std::string versionString = "");
