@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.2)
+cmake_minimum_required(VERSION 3.28)
 project(Lumadi_Configs)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -22,6 +22,7 @@ target_sources(Lumadi_Configs
         src/SettingTypes.cppm
         src/Configs.cppm
 )
+set_target_properties(Lumadi_Configs PROPERTIES CXX_SCAN_FOR_MODULES ON)
 
 target_link_libraries(Lumadi_Configs PUBLIC
         nlohmann_json::nlohmann_json

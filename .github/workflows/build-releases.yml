@@ -15,11 +15,11 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            artifact_name: nessy_backend_linux.tar.gz
+            artifact_name: lumadi_config_linux.tar.gz
           - os: windows-latest
-            artifact_name: nessy_backend_windows.zip
+            artifact_name: lumadi_config_windows.zip
           - os: macos-latest
-            artifact_name: nessy_backend_mac.tar.gz
+            artifact_name: lumadi_config_mac.tar.gz
 
     steps:
       - name: Checkout Repository
@@ -49,41 +49,32 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
           brew install cmake ninja
-          # Apple Clang unterstützt Module nativ über CMake
 
       # --- BUILD ---
-      - name: Configure and Build (Linux/macOS)
-        if: matrix.os != 'windows-latest'
+      - name: Configure and Build
+        shell: ${{ matrix.os == 'windows-latest' && 'msys2 {0}' || 'bash' }}
         run: |
           cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-          cmake --build build --target nessy_backend
-
-      - name: Configure and Build (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: msys2 {0}
-        run: |
-          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-          cmake --build build --target nessy_backend
+          cmake --build build --target Lumadi_Configs
 
       # --- ARTIFACT PACKAGING ---
-      - name: Package Artifact (Linux/macOS)
-        if: matrix.os != 'windows-latest'
-        run: |
-          # Sammle die fertige .a/.lib und das .ifc/.gcm Modul-File
-          mkdir -p package/include
-          find build -name "nessy_backend.a" -exec cp {} package/ \; 2>/dev/null || true
-          find build -name "*.ifc" -exec cp {} package/include/ \; 2>/dev/null || true
-          find build -name "*.gcm" -exec cp {} package/include/ \; 2>/dev/null || true
-          tar -czvf ${{ matrix.artifact_name }} -C package .
-
-      - name: Package Artifact (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: msys2 {0}
+      - name: Package Artifact
+        shell: ${{ matrix.os == 'windows-latest' && 'msys2 {0}' || 'bash' }}
         run: |
           mkdir -p package/include
-          find build -name "nessy_backend.lib" -exec cp {} package/ \; 2>/dev/null || true
-          find build -name "*.ifc" -exec cp {} package/include/ \; 2>/dev/null || true
-          tar -a -c -f ${{ matrix.artifact_name }} package/*
+          
+          # Copy the static library (Linux/macOS: libLumadi_Configs.a, Windows: libLumadi_Configs.a)
+          find build -name "libLumadi_Configs.a" -exec cp {} package/ \; 2>/dev/null || true
+          
+          # Copy module interface files (.ifc, .gcm, or .pcm)
+          find build -name "*.ifc" -o -name "*.gcm" -o -name "*.pcm" -exec cp {} package/include/ \; 2>/dev/null || true
+          
+          # Create archive
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            tar -a -c -f ${{ matrix.artifact_name }} -C package .
+          else
+            tar -czvf ${{ matrix.artifact_name }} -C package .
+          fi
 
       # --- UPLOAD TO GITHUB RELEASE ---
       - name: Upload Binary to Release
