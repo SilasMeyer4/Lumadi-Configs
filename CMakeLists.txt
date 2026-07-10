@@ -16,7 +16,7 @@ add_library(Lumadi_Configs STATIC
         src/Configs.cpp
         include/lumadi/config/detail/Configs.h
         include/lumadi/config/detail/SettingType.h
-        include/lumadi/config/config.h)
+        include/lumadi/config/Config.h)
 
 target_include_directories(Lumadi_Configs
         PUBLIC
