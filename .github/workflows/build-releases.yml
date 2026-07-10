@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-24.04 # Updated to 24.04 for better module support
             artifact_name: lumadi_config_linux.tar.gz
           - os: windows-latest
             artifact_name: lumadi_config_windows.zip
@@ -27,7 +27,7 @@ jobs:
 
       # --- COMPILER & TOOLS SETUP ---
       - name: Setup Linux Environment
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-24.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build g++-13
@@ -61,7 +61,8 @@ jobs:
       - name: Configure and Build (Linux/macOS)
         if: matrix.os != 'windows-latest'
         run: |
-          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          # Explicitly set the CXX compiler to ensure the scanner uses the right one
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${{ matrix.os == 'ubuntu-24.04' && 'g++-13' || 'c++' }}
           cmake --build build --target Lumadi_Configs
 
       # --- ARTIFACT PACKAGING ---
