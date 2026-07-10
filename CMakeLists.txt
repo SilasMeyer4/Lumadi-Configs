@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 4.2)
 project(Lumadi_Configs)
 
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 include(FetchContent)
 
@@ -12,16 +14,13 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(json)
 
-add_library(Lumadi_Configs STATIC
-        src/Configs.cpp
-        include/lumadi/config/detail/Configs.h
-        include/lumadi/config/detail/SettingType.h
-        include/lumadi/config/Config.h)
+add_library(Lumadi_Configs STATIC)
 
-target_include_directories(Lumadi_Configs
+target_sources(Lumadi_Configs
         PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
+        FILE_SET CXX_MODULES FILES
+        src/SettingTypes.cppm
+        src/Configs.cppm
 )
 
 target_link_libraries(Lumadi_Configs PUBLIC
