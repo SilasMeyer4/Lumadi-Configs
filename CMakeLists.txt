@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.28)
-project(Lumadi_Configs)
 
-set(CMAKE_CXX_STANDARD 23)
+project(Lumadi_Configs LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_SCAN_FOR_MODULES ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(FetchContent)
 
@@ -14,16 +15,24 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(json)
 
-add_library(Lumadi_Configs STATIC)
-
-target_sources(Lumadi_Configs
-        PUBLIC
-        FILE_SET CXX_MODULES FILES
-        src/SettingTypes.cppm
-        src/Configs.cppm
+add_library(Lumadi_Configs STATIC
+        src/Configs.cpp
 )
-set_target_properties(Lumadi_Configs PROPERTIES CXX_SCAN_FOR_MODULES ON)
 
-target_link_libraries(Lumadi_Configs PUBLIC
+target_include_directories(Lumadi_Configs
+        PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+)
+
+target_link_libraries(Lumadi_Configs
+        PUBLIC
         nlohmann_json::nlohmann_json
 )
+
+option(ENABLE_TESTS "Enable unit tests" OFF)
+
+if (ENABLE_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif ()
