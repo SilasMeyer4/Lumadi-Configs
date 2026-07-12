@@ -148,16 +148,12 @@ namespace Lumadi::Configs {
   class AppSettings {
   public:
     AppSettings(std::string path, std::string versionString = "");
-
     void Save() const;
-
     void Load();
-
     [[nodiscard]] std::string GetJson() const;
-
     void SetPath(std::string path);
-
     AppSettingCategory *GetCategory(const std::string &name);
+    std::vector<std::unique_ptr<IAppSettingCategory> > &GetCategories();
 
     template<typename T>
     Setting<T> *GetSetting(const std::string &category, const std::string &name) {

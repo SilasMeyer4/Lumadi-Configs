@@ -90,6 +90,11 @@ namespace Lumadi::Configs {
     return static_cast<AppSettingCategory *>(rawInterfacePtr);
   }
 
+  std::vector<std::unique_ptr<IAppSettingCategory>> & AppSettings::GetCategories()
+  {
+    return mCategories;
+  }
+
   nlohmann::json AppSettings::ToJson() const {
     nlohmann::json root;
     root["version"] = mVersionString;
