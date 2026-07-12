@@ -2,8 +2,8 @@
 // Created by silas on 11.07.26.
 //
 
-#ifndef LUMADI_CONFIGS_CONFIGS_H
-#define LUMADI_CONFIGS_CONFIGS_H
+#ifndef LUMADI_CONFIGS_DETAILS_CONFIGS_H
+#define LUMADI_CONFIGS_DETAILS_CONFIGS_H
 
 #include <string>
 #include <vector>
@@ -188,4 +188,4 @@ namespace Lumadi::Configs {
   };
 }
 
-#endif //LUMADI_CONFIGS_CONFIGS_H
+#endif //LUMADI_CONFIGS_DETAILS_CONFIGS_H
